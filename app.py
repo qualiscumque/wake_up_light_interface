@@ -4,13 +4,20 @@
 from flask import Flask, render_template, request, url_for
 import sys
 import smbus
+from tm1637 import TM1637
 #from crontab import CronTab
 device = smbus.SMBus(1)
 
 
-# Initialize the Flask application
-app = Flask(__name__)
 
+display = TM1637(CLK=21, DIO=20, brightness=1.0)
+
+display.Clear()
+digits = [1, 3, 3, 7]
+display.Show(digits)
+
+#Initialize the Flask applicationI
+app = Flask(__name__)
 # Define a route for the default URL, which loads the form
 @app.route('/')
 def form():
@@ -20,9 +27,15 @@ def form():
 
 @app.route('/hello/', methods=['POST'])
 def hello():
-    name="test"#request.form['yourname']
+    name=request.form['yourname']
     email=sys.version #request.form['youremail']
     run_count = 0
+
+
+    display.Clear()
+    digits = [int(name), 5, 5, 5]
+    display.Show(digits)
+
 
     address = 50
     print("I2C: Schreiben auf Device 0x{:02X}".format(address))
