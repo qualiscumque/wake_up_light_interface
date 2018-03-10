@@ -40,7 +40,7 @@ class TM1637:
         IO.setup(self.__Clkpin, IO.OUT)
         IO.setup(self.__Datapin, IO.OUT)
 
-    def # cleanup(self):
+    def cleanup(self):
         """Stop updating clock, turn off display, and cleanup GPIO"""
         self.StopClock()
         self.Clear()
