@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <div class="jumbotron text-center">
+    <h1>Welcome to the Wake-Up-Light</h1>
+    <p class="lead">This application is to control your Wake-Up-Light.
+      You can now toggle the high power LED oder set up any alarms</p>
+      <a href="/toggle" class="btn btn-primary btn-lg">Toggle LED!</a>
+      <a href="/display" class="btn btn-success btn-lg">Write to Display</a>
+      <a href="/dashboard" class="btn btn-success btn-lg">Set Alarms</a>
+  </div>
+{% endblock %}
