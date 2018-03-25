@@ -14,7 +14,7 @@ Add following line to crontab (using crontab -e)
 * * * * * python /[repository path]/wake_up_light_interface/timer_cron.py
 ```
 
-## Setup Crontab:
+## Update time via ntp:
 Update ntp to ensure a proper time base:
 
 ```
