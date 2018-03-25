@@ -1,7 +1,8 @@
 import json
+from datetime import datetime as dt
 
 from flask import Flask, render_template, flash, redirect, url_for, session, request, logging
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators, DateTimeField
+from wtforms import Form, StringField, validators, DateTimeField
 
 app = Flask(__name__)
 
@@ -64,7 +65,7 @@ def dashboard():
 # Alarm Form Class
 class AlarmForm(Form):
     title = StringField('Title', [validators.Length(min=1, max=200)])
-    body = StringField('Alarm', [validators.Length(min=1, max=200)])
+    body = DateTimeField('Alarm', format='%H:%M:%S')
     action = StringField('Action', [validators.Length(min=1, max=200)])
 
 
@@ -112,7 +113,7 @@ def edit_alarm(id):
 
     # Populate alarm data form fields
     form.title.data = alarm['title']
-    form.body.data = alarm['alarm']
+    form.body.data = dt.strptime(alarm['alarm'], "%H:%M:%S")
     form.action.data = alarm['action']
 
     if request.method == 'POST' and form.validate():

@@ -13,6 +13,15 @@
     <div class="form-group">
       {{ render_field(form.action, class_="form-control") }}
     </div>
+ 
+    <script>
+    $(function() {
+        $('#body').timepicker({
+            'timeFormat': 'H:i:s'
+            });
+    });
+    </script>
+
     <p><input class="btn btn-primary" type="submit" value="Submit">
   </form>
 {% endblock %}
