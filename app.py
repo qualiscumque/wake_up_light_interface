@@ -50,16 +50,16 @@ def display():
     return render_template('home.html')
 
 
-# Dashboard
-@app.route('/dashboard')
-def dashboard():
+# Alarm Dashboard
+@app.route('/alarm_dashboard')
+def alarm_dashboard():
     alarms = get_alarm_data()
 
     if len(alarms) > 0:
-        return render_template('dashboard.html', alarms=alarms)
+        return render_template('alarm_dashboard.html', alarms=alarms)
     else:
         msg = 'Alarm DB not found!'
-        return render_template('dashboard.html', msg=msg)
+        return render_template('alarm_dashboard.html', msg=msg)
 
 
 # Alarm Form Class
@@ -95,7 +95,7 @@ def add_alarm():
         write_alarm_data(alarms)
 
         flash('Alarm Created', 'success')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('alarm_dashboard'))
     return render_template('add_alarm.html', form=form)
 
 
@@ -132,7 +132,7 @@ def edit_alarm(id):
         write_alarm_data(alarms)
 
         flash('Alarm Updated', 'success')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('alarm_dashboard'))
     return render_template('edit_alarm.html', form=form)
 
 
@@ -149,7 +149,7 @@ def delete_alarm(id):
     write_alarm_data(alarms)
     flash('Alarm Deleted', 'success')
 
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('alarm_dashboard'))
 
 if __name__ == '__main__':
     app.secret_key = 'secret123'
