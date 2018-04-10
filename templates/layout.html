@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    {% block head %}
     <meta charset="utf-8">
     <title>Wake-Up-Light App</title>
 
@@ -14,6 +15,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='3rdparty/jquery-timepicker/jquery.timepicker.css') }}" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% endblock %}
   </head>
   <body>
     {% include 'includes/_navbar.html' %}

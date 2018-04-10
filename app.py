@@ -151,10 +151,17 @@ def delete_alarm(id):
 
     return redirect(url_for('alarm_dashboard'))
 
+
+# Color Gauges
+@app.route('/gauges')
+def color_gauges():
+    return render_template('gauges.html')
+
+
 if __name__ == '__main__':
     app.secret_key = 'secret123'
     app.run(
         host="0.0.0.0",
         port=int("80"),
-	debug=True
+        debug=True
     )
