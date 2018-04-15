@@ -158,6 +158,14 @@ def color_gauges():
     return render_template('gauges.html')
 
 
+@app.route('/valueofslider')
+def valueofslider():
+    sender = request.args.get('sender')
+    value = request.args.get('value')
+    print("{}: {}".format(sender, value))
+    return render_template('gauges.html')
+
+
 if __name__ == '__main__':
     app.secret_key = 'secret123'
     app.run(

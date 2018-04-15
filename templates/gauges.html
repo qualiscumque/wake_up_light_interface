@@ -3,17 +3,26 @@
 {% block head %}
   {{ super() }}
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <link rel="stylesheet" href="/resources/demos/style.css">
   <style>
-    #red, #green, #blue {
+    .btn-primary{
+      margin: 15px 0px 0px 15px;
+    }
+    #red, #green, #blue, #white {
       float: left;
       clear: left;
       width: 300px;
       margin: 15px;
     }
-    #swatch {
-      width: 120px;
-      height: 100px;
+    #swatch_rgb {
+      width: 160px;
+      height: 75px;
+      margin-top: 18px;
+      margin-left: 350px;
+      background-image: none;
+    }
+    #swatch_white {
+      width: 160px;
+      height: 75px;
       margin-top: 18px;
       margin-left: 350px;
       background-image: none;
@@ -24,6 +33,8 @@
     #green .ui-slider-handle { border-color: #8ae234; }
     #blue .ui-slider-range { background: #729fcf; }
     #blue .ui-slider-handle { border-color: #729fcf; }
+    #white .ui-slider-range { background: #000000; }
+    #white .ui-slider-handle { border-color: #729fcf; }
   </style>
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -43,14 +54,25 @@
         return hex.join( "" ).toUpperCase();
       }
       function refreshSwatch() {
+        var id = $(this).attr('id');
         var red = $( "#red" ).slider( "value" ),
           green = $( "#green" ).slider( "value" ),
           blue = $( "#blue" ).slider( "value" ),
+          white = $( "#white" ).slider( "value" ),
           hex = hexFromRGB( red, green, blue );
-        $( "#swatch" ).css( "background-color", "#" + hex );
+        $( "#swatch_rgb" ).css( "background-color", "#" + hex );
+        $( "#swatch_white" ).css( "background-color", "#" +
+          white.toString( 16 ) +
+          white.toString( 16 ) +
+          white.toString( 16 )
+        );
+        $.getJSON('/valueofslider', {
+          sender: id,
+          value:$( "#" + id ).slider( "value" )
+        })
       }
 
-      $( "#red, #green, #blue" ).slider({
+      $( "#red, #green, #blue, #white" ).slider({
         orientation: "horizontal",
         range: "min",
         max: 255,
@@ -61,6 +83,8 @@
       $( "#red" ).slider( "value", 255 );
       $( "#green" ).slider( "value", 140 );
       $( "#blue" ).slider( "value", 60 );
+      $( "#white" ).slider( "value", 60 );
+
     } );
   </script>
 {% endblock %}
@@ -71,8 +95,10 @@
       <div id="red"></div>
       <div id="green"></div>
       <div id="blue"></div>
+      <div id="white"></div>
 
-      <div id="swatch" class="ui-widget-content ui-corner-all"></div>
+      <div id="swatch_rgb" class="ui-widget-content ui-corner-all"></div>
+      <div id="swatch_white" class="ui-widget-content ui-corner-all"></div>
     </div>
 
     <input class="btn btn-primary" type="submit" value="Submit">
