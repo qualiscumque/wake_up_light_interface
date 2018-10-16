@@ -1,5 +1,7 @@
 import os
-import json
+from importlib.util import spec_from_file_location, module_from_spec
+from json import load
+from re import match
 from datetime import datetime
 from tm1637 import TM1637
 
@@ -19,17 +21,25 @@ display_time(current_time)
 
 alarms = []
 with open(working_dir + 'alarms.json') as alarms_file:    
-    alarms = json.load(alarms_file)["array"]
+    alarms = load(alarms_file)["array"]
 
-for alarm_num in range(len(alarms)):
-    alarm_ref_time = current_time.strftime('%H:%M')
-    alarm_entry = alarms[alarm_num]["alarm"]
-    alarm_minutes = ":".join(alarm_entry.split(":")[:2])
+alarm_ref_time = current_time.strftime('%H:%M')
+print(alarm_ref_time)
+alarm_ref_day = current_time.weekday()
+
+for alarm in alarms:
+    alarm_entry = alarm["alarm"]
     
-    if(alarm_ref_time == alarm_minutes):
-	action = alarms[alarm_num]["action"]
-	print("running action ", action)
-	os.system("python " + working_dir + action)
-    print(alarm_ref_time)
-    print(alarm_minutes)
+    if(alarm_ref_time == alarm_entry) and alarm_ref_day in alarm["days"]:
+        action = alarm["action"]
+        print("running action ", action)
+
+        m = match("([a-zA-Z]+) ?(.*)?", action)
+        if m:
+            spec = spec_from_file_location("actions."+m.group(1),"%sactions/%s.py"%(working_dir, m.group(1)))
+            mod = module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            mod.main(m.group(2))
+
+    print(alarm_entry)
 

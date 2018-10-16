@@ -2,7 +2,8 @@ import json
 from datetime import datetime as dt
 
 from flask import Flask, render_template, flash, redirect, url_for, session, request, logging
-from wtforms import Form, StringField, validators, DateTimeField
+from wtforms import Form, StringField, validators, DateTimeField, SelectMultipleField, IntegerField
+from calendar import day_abbr
 
 app = Flask(__name__)
 
@@ -18,6 +19,24 @@ def get_alarm_data():
 def write_alarm_data(alarms):
     with open('alarms.json', 'w') as alarms_file:
         json.dump({"array": alarms}, alarms_file, indent=4)
+
+
+#class MultiCheckboxField(SelectMultipleField):
+#    """
+#    A multiple-select, except displays a list of checkboxes.
+#
+#    Iterating the field will produce subfields, allowing custom rendering of
+#    the enclosed checkbox fields.
+#    """
+#    widget = widgets.ListWidget(prefix_label=False)
+#    option_widget = widgets.CheckboxInput()
+
+# Alarm Form Class
+class AlarmForm(Form):
+    title = StringField('Title', [validators.Length(min=1, max=200)])
+    time = DateTimeField('Alarm', format='%H:%M')
+    days = SelectMultipleField('Weekdays', choices=list(zip(range(7), day_abbr)), coerce=int)
+    action = StringField('Action', [validators.Length(min=1, max=200)])
 
 
 # Index
@@ -61,21 +80,13 @@ def alarm_dashboard():
         msg = 'Alarm DB not found!'
         return render_template('alarm_dashboard.html', msg=msg)
 
-
-# Alarm Form Class
-class AlarmForm(Form):
-    title = StringField('Title', [validators.Length(min=1, max=200)])
-    body = DateTimeField('Alarm', format='%H:%M:%S')
-    action = StringField('Action', [validators.Length(min=1, max=200)])
-
-
 # Add Alarm
 @app.route('/add_alarm', methods=['GET', 'POST'])
 def add_alarm():
     form = AlarmForm(request.form)
     if request.method == 'POST' and form.validate():
         title = request.form['title']
-        body = request.form['body']
+        time = request.form['time']
         action = request.form['action']
 
         alarms = get_alarm_data()
@@ -88,15 +99,17 @@ def add_alarm():
 
         new_alarm = {'id': str(new_id),
                      'title': title,
-                     'alarm': body,
-                     'action': action}
+                     'alarm': time,
+                     'action': action,
+                     'days': form.days.data
+                     }
 
         alarms.append(new_alarm)
         write_alarm_data(alarms)
 
         flash('Alarm Created', 'success')
         return redirect(url_for('alarm_dashboard'))
-    return render_template('add_alarm.html', form=form)
+    return render_template('edit_alarm.html', form=form)
 
 
 # Edit Alarm
@@ -104,21 +117,27 @@ def add_alarm():
 def edit_alarm(id):
     alarms = get_alarm_data()
 
+    selected_alarm = None
     for alarm in alarms:
         if alarm['id'] == id:
+            selected_alarm = alarm
             break
+    else:
+        flash('Alarm ID not found!', 'error')
+        return redirect(url_for('alarm_dashboard'))
 
     # Get form
     form = AlarmForm(request.form)
 
     # Populate alarm data form fields
-    form.title.data = alarm['title']
-    form.body.data = dt.strptime(alarm['alarm'], "%H:%M:%S")
-    form.action.data = alarm['action']
+    form.title.data = selected_alarm['title']
+    form.time.data = dt.strptime(selected_alarm['alarm'], "%H:%M")
+    form.action.data = selected_alarm['action']
+    form.days.data = selected_alarm['days']
 
     if request.method == 'POST' and form.validate():
         title = request.form['title']
-        body = request.form['body']
+        time = request.form['time']
         action = request.form['action']
 
         alarms = get_alarm_data()
@@ -126,7 +145,8 @@ def edit_alarm(id):
         for alarm in alarms:
             if alarm['id'] == id:
                 alarm['title'] = title
-                alarm['alarm'] = body
+                alarm['alarm'] = time
+                alarm['days'] = request.form['days']
                 alarm['action'] = action
 
         write_alarm_data(alarms)
