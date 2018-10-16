@@ -74,6 +74,11 @@ def display():
 def alarm_dashboard():
     alarms = get_alarm_data()
 
+    #get names for the numbers
+    for alarm in alarms:
+        alarm["dnames"] = [day_abbr[int(x)] for x in alarm['days']]
+        print(alarm["dnames"])
+
     if len(alarms) > 0:
         return render_template('alarm_dashboard.html', alarms=alarms)
     else:
@@ -129,30 +134,27 @@ def edit_alarm(id):
     # Get form
     form = AlarmForm(request.form)
 
-    # Populate alarm data form fields
-    form.title.data = selected_alarm['title']
-    form.time.data = dt.strptime(selected_alarm['alarm'], "%H:%M")
-    form.action.data = selected_alarm['action']
-    form.days.data = selected_alarm['days']
-
     if request.method == 'POST' and form.validate():
         title = request.form['title']
         time = request.form['time']
         action = request.form['action']
 
-        alarms = get_alarm_data()
-
-        for alarm in alarms:
-            if alarm['id'] == id:
-                alarm['title'] = title
-                alarm['alarm'] = time
-                alarm['days'] = request.form['days']
-                alarm['action'] = action
+        selected_alarm['title'] = title
+        selected_alarm['alarm'] = time
+        selected_alarm['days'] = form.days.data
+        selected_alarm['action'] = action
 
         write_alarm_data(alarms)
 
         flash('Alarm Updated', 'success')
         return redirect(url_for('alarm_dashboard'))
+    else:
+        # Populate alarm data form fields
+        form.title.data = selected_alarm['title']
+        form.time.data = dt.strptime(selected_alarm['alarm'], "%H:%M")
+        form.action.data = selected_alarm['action']
+        form.days.data = selected_alarm['days']
+
     return render_template('edit_alarm.html', form=form)
 
 

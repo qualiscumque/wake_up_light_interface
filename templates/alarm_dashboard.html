@@ -20,6 +20,7 @@
     {% for alarm in alarms %}
     <h3>{{alarm.alarm}} <span>{{alarm.title}}</span></h3>
     <div>
+      <p>{% for day in alarm.dnames %}{{day}} {% endfor %}</p>
       <p>{{alarm.action}}</p>
       <a href="edit_alarm/{{alarm.id}}" class="btn btn-default pull-right">Edit</a>
       <form action="{{url_for('delete_alarm', id=alarm.id)}}" method="post">
