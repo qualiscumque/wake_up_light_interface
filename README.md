@@ -8,10 +8,10 @@ apt-get install ntpdate python-smbus
 pip install WTForms
 ```
 ## Setup Crontab:
-Add following line to crontab (using crontab -e)
+Create a new file at `/etc/cron.d/wake_up_light`
 
 ```
-* * * * * python3 /[repository path]/wake_up_light_interface/timer_cron.py
+* * * * * www-data python3 /[repository path]/wake_up_light_interface/timer_cron.py
 ```
 
 ## Update time via ntp:
