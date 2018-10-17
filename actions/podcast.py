@@ -2,7 +2,7 @@ import logging
 from requests import get
 from xml.etree.ElementTree import fromstring as parseXML
 from threading import Thread
-from dlnap import discover # from https://github.com/cherezov/dlnap
+from dlnap.dlnap import discover # from https://github.com/cherezov/dlnap
 """
 Grab the newest Episode of a podcast and send it to a DLNA Device
 """
@@ -48,6 +48,11 @@ class nwThread(Thread):
             playViaDLNA(DLNA_DEVICE, mp3uri, 20)
 
 def main(url):
+    """
+    Args: url
+
+    url: of podcast
+    """
     t = nwThread(url)
     t.start()
 
