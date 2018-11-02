@@ -1,32 +1,33 @@
 {% extends 'layout.html' %}
+{% block head %}
+{{ super() }}
+<script>
+  $( function() {
+    $( "#accordion" ).accordion();
+    $( "#days input" ).checkboxradio({
+      icon: false
+    });
+  } );
+</script>
+{% endblock %}
 
 {% block body %}
   <h1>Alarm Dashboard</h1>
   <a class="btn btn-success" href="/add_alarm"> Add Alarm</a>
   <hr>
-  <table class="table table-striped">
-    <tr>
-      <th>ID</th>
-      <th>Alarm</th>
-      <th>Title</th>
-      <th>Action</th>
-      <th></th>
-      <th></th>
-    </tr>
+
+  <div id="accordion">
     {% for alarm in alarms %}
-      <tr>
-        <td>{{alarm.id}}</td>
-        <td><h4>{{alarm.alarm}}</h4></td>
-        <td>{{alarm.title}}</td>
-        <td>{{alarm.action}}</td>
-        <td><a href="edit_alarm/{{alarm.id}}" class="btn btn-default pull-right">Edit</a></td>
-        <td>
-          <form action="{{url_for('delete_alarm', id=alarm.id)}}" method="post">
-            <input type="hidden" name="_method" value="DELETE">
-            <input type="submit" value="Delete" class="btn btn-danger">
-          </form>
-        </td>
-      </tr>
+    <h3>{{alarm.alarm}} <span>{{alarm.title}}</span></h3>
+    <div>
+      <p>{% for day in alarm.dnames %}{{day}} {% endfor %}</p>
+      <p>{{alarm.action}}</p>
+      <a href="edit_alarm/{{alarm.id}}" class="btn btn-default pull-right">Edit</a>
+      <form action="{{url_for('delete_alarm', id=alarm.id)}}" method="post">
+        <input type="hidden" name="_method" value="DELETE">
+        <input type="submit" value="Delete" class="btn btn-danger">
+      </form>
+    </div>
     {% endfor %}
-  </table>
+  </div>
 {% endblock %}
