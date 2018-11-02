@@ -23,7 +23,7 @@ sudo ntpd -q -g
 sudo /etc/init.d/ntp start
 ```
 
-## Run Webserver as non root
+## Run Webserver as non root:
 Install and configure authbind:
 ```sh
 sudo apt install authbind

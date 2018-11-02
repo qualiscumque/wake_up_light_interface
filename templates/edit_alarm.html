@@ -8,11 +8,19 @@ $(function() {
         });
 
 });
+
+function selectDaysOptions(selected) {
+    var obj = document.getElementById("days");
+    if (obj.options.length == 0) { return; }
+    for (var i = 0; i < obj.options.length; i++) {
+        obj.options[i].selected = selected;
+    }
+}
 </script>
 {% endblock %}
 
 {% block body %}
-  <h1>Edit Alarm</h1>
+  <h1>Set Alarm</h1>
   {% from "includes/_formhelpers.html" import render_field %}
   <form method="POST" action="">
     <div class="form-group">
@@ -23,6 +31,8 @@ $(function() {
     </div>
     <div class="form-group">
       {{ render_field(form.days, class_="form-control") }}
+      <a onclick="selectDaysOptions(true);" href="#">Select all</a>
+      <a onclick="selectDaysOptions(false);" href="#">Select none</a>
     </div>
     <div class="form-group">
       {{ render_field(form.action, class_="form-control") }}

@@ -86,8 +86,8 @@ def alarm_dashboard():
         return render_template('alarm_dashboard.html', msg=msg)
 
 # Add Alarm
-@app.route('/add_alarm', methods=['GET', 'POST'])
-def add_alarm():
+@app.route('/set_alarm', methods=['GET', 'POST'])
+def set_alarm():
     form = AlarmForm(request.form)
     if request.method == 'POST' and form.validate():
         title = request.form['title']
