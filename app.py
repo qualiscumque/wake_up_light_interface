@@ -188,6 +188,14 @@ def valueofslider():
     return render_template('gauges.html')
 
 
+@app.route("/alarm_times")
+def alarm_times():
+    alarm_times = []
+    for alarm in get_alarm_data():
+        alarm_times.append("\"01 Jan 1970 {}:00 GMT:00\"".format(alarm["alarm"]))
+    return "[{}]".format(", ".join(alarm_times))
+
+
 if __name__ == '__main__':
     app.secret_key = 'secret123'
     app.run(

@@ -2,12 +2,41 @@
 {% block head %}
 {{ super() }}
 <script>
-  $( function() {
-    $( "#accordion" ).accordion();
-    $( "#days input" ).checkboxradio({
-      icon: false
-    });
-  } );
+    $( function() {
+      $( "#accordion" ).accordion();
+      $( "#days input" ).checkboxradio({
+        icon: false
+      });
+    } );
+  
+    $( function() {
+      let time = moment().format('h:mm:ss a');
+      let data = null;
+      let fetchAsyncA = async () => 
+        await (await fetch('/alarm_times')
+          .then(response => response.text().then(function(value) {
+            data = value;
+          })));
+  
+      fetchAsyncA();
+      document.getElementById('time').innerHTML = time;
+  
+      setInterval(() => {
+        date_data = JSON.parse(data)
+        console.log(date_data);
+
+        for (var i = 0; i < date_data.length; i++) {
+          var seconds = (moment() - Date.parse(date_data[i]));
+
+          console.log(seconds);
+        }
+    
+
+        time = moment().format('h:mm:ss a');
+        document.getElementById('time').innerHTML = time;
+      }, 1000)
+    } );
+
 </script>
 {% endblock %}
 
@@ -30,4 +59,9 @@
     </div>
     {% endfor %}
   </div>
+
+  <div style="padding-top: 10px;">
+    <div id="time"></div>
+  </div>
+
 {% endblock %}
