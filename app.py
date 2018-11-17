@@ -5,7 +5,9 @@ from flask import Flask, render_template, flash, redirect, url_for, session, req
 from wtforms import Form, StringField, validators, DateTimeField, SelectMultipleField, IntegerField
 from calendar import day_abbr
 
+import smbus
 app = Flask(__name__)
+device = smbus.SMBus(1)
 
 
 def get_alarm_data():
@@ -37,6 +39,19 @@ class AlarmForm(Form):
     time = DateTimeField('Alarm', format='%H:%M')
     days = SelectMultipleField('Weekdays', choices=list(zip(range(7), day_abbr)), coerce=int)
     action = StringField('Action', [validators.Length(min=1, max=200)])
+
+
+def led_control(led_nr, brightness, delay):
+    def parse_int(num):
+        low = num & 0x00FF
+        high = (num & 0xFF00) >> 8
+        return [high, low]
+
+    device.write_i2c_block_data(0x32, 0x01, [led_nr])
+    device.write_i2c_block_data(0x32, 0x02, parse_int(brightness))
+    device.write_i2c_block_data(0x32, 0x04, parse_int(delay))
+
+    device.write_i2c_block_data(0x32, 0x00, [0xFF]) # Flush
 
 
 # Index
@@ -183,8 +198,22 @@ def color_gauges():
 @app.route('/valueofslider')
 def valueofslider():
     sender = request.args.get('sender')
-    value = request.args.get('value')
-    # print("{}: {}".format(sender, value))
+    value = int(request.args.get('value'))
+    
+    slider_mapping = {
+        "red": 1,
+        "green": 2,
+        "blue": 3,
+        "white": 4
+    }
+
+    try:
+        led_control(slider_mapping[sender], value, 0)    
+
+    except IOError as err:
+        print("Fehler beim Schreiben auf Device 0x{:02X}".format(address))
+
+    #print("{}: {}".format(slider_mapping[sender], value))
     return render_template('gauges.html')
 
 
