@@ -1,13 +1,13 @@
 import json
 from datetime import datetime as dt
-
-from flask import Flask, render_template, flash, redirect, url_for, session, request, logging
-from wtforms import Form, StringField, validators, DateTimeField, SelectMultipleField, IntegerField
 from calendar import day_abbr
 
-import smbus
+from flask import Flask, render_template, flash, redirect, url_for, request
+from wtforms import Form, StringField, validators, DateTimeField, SelectMultipleField
+
+from wul_i2c_interface import WulInterface
+
 app = Flask(__name__)
-device = smbus.SMBus(1)
 
 
 def get_alarm_data():
@@ -23,7 +23,7 @@ def write_alarm_data(alarms):
         json.dump({"array": alarms}, alarms_file, indent=4)
 
 
-#class MultiCheckboxField(SelectMultipleField):
+# class MultiCheckboxField(SelectMultipleField):
 #    """
 #    A multiple-select, except displays a list of checkboxes.
 #
@@ -41,45 +41,19 @@ class AlarmForm(Form):
     action = StringField('Action', [validators.Length(min=1, max=200)])
 
 
-def led_control(led_nr, brightness, delay):
-    def parse_int(num):
-        low = num & 0x00FF
-        high = (num & 0xFF00) >> 8
-        return [high, low]
-
-    device.write_i2c_block_data(0x32, 0x01, [led_nr])
-    device.write_i2c_block_data(0x32, 0x02, parse_int(brightness))
-    device.write_i2c_block_data(0x32, 0x04, parse_int(delay))
-
-    device.write_i2c_block_data(0x32, 0x00, [0xFF]) # Flush
-
-
 # Index
 @app.route('/')
 def index():
     return render_template('home.html')
 
 
-@app.route('/toggle')
-def toggle():
-    import smbus
-    device = smbus.SMBus(1)
-    address = 50
-    print("I2C: Schreiben auf Device 0x{:02X}".format(address))
-    try:
-        device.write_i2c_block_data(0x32, 0x00, [0x1])
-    except IOError as err:
-            print("Fehler beim Schreiben auf Device 0x{:02X}".format(address))
-    return render_template('home.html')
-
-
 @app.route('/display')
 def display():
     from tm1637 import TM1637
-    display = TM1637(CLK=21, DIO=20, brightness=1.0)
-    display.Clear()
+    display_if = TM1637(CLK=21, DIO=20, brightness=1.0)
+    display_if.Clear()
     digits = [1, 3, 3, 7]
-    display.Show(digits)
+    display_if.Show(digits)
 
     return render_template('home.html')
 
@@ -89,7 +63,7 @@ def display():
 def alarm_dashboard():
     alarms = get_alarm_data()
 
-    #get names for the numbers
+    # get names for the numbers
     for alarm in alarms:
         alarm["dnames"] = [day_abbr[int(x)] for x in alarm['days']]
         print(alarm["dnames"])
@@ -99,6 +73,7 @@ def alarm_dashboard():
     else:
         msg = 'Alarm DB not found!'
         return render_template('alarm_dashboard.html', msg=msg)
+
 
 # Add Alarm
 @app.route('/set_alarm', methods=['GET', 'POST'])
@@ -207,15 +182,18 @@ def valueofslider():
         "white": 4
     }
 
-    try:
-        led_control(slider_mapping[sender], value, 0)    
+    i2c_if = WulInterface(1)
+    i2c_if.led_control(slider_mapping[sender], value, 0)
 
-    except IOError as err:
-        print("Fehler beim Schreiben auf Device 0x{:02X}".format(address))
-
-    #print("{}: {}".format(slider_mapping[sender], value))
+    # print("{}: {}".format(slider_mapping[sender], value))
     return render_template('gauges.html')
 
+
+@app.route('/toggle')
+def toggle():
+    i2c_if = WulInterface(1)
+    i2c_if.toggle()
+    return render_template('home.html')
 
 if __name__ == '__main__':
     app.secret_key = 'secret123'
