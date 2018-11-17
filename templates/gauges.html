@@ -53,18 +53,19 @@
         });
         return hex.join( "" ).toUpperCase();
       }
+
       function refreshSwatch() {
         var id = $(this).attr('id');
         var red = $( "#red" ).slider( "value" ),
           green = $( "#green" ).slider( "value" ),
           blue = $( "#blue" ).slider( "value" ),
           white = $( "#white" ).slider( "value" ),
-          hex = hexFromRGB( red, green, blue );
+          hex = hexFromRGB( red >> 8, green >> 8, blue >> 8 );
         $( "#swatch_rgb" ).css( "background-color", "#" + hex );
+
+        var white_reduced = (white >> 8).toString( 16 );
         $( "#swatch_white" ).css( "background-color", "#" +
-          white.toString( 16 ) +
-          white.toString( 16 ) +
-          white.toString( 16 )
+          white_reduced + white_reduced + white_reduced
         );
         $.getJSON('/valueofslider', {
           sender: id,
@@ -75,8 +76,8 @@
       $( "#red, #green, #blue, #white" ).slider({
         orientation: "horizontal",
         range: "min",
-        max: 255,
-        value: 127,
+        max: 65535,
+        value: 0,
         slide: refreshSwatch,
         change: refreshSwatch
       });

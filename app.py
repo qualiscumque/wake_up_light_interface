@@ -184,7 +184,7 @@ def color_gauges():
 def valueofslider():
     sender = request.args.get('sender')
     value = request.args.get('value')
-    print("{}: {}".format(sender, value))
+    # print("{}: {}".format(sender, value))
     return render_template('gauges.html')
 
 
